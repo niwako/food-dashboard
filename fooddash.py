@@ -36,15 +36,15 @@ def get_cell_name(entry, column):
     return f"{CL_MAP[column]}{entry.name+2}"
 
 
-def render_item(col, entry, postpone_df):
-    col.write(f"### {entry.content}")
-    col.write(f"Expiring on: {entry.expiration_date}")
-    col.write(f"{entry.servings} servings in the {entry.storage_location}")
-    if col.button("I ate it", key=entry.name):
+def render_item(entry, postpone_df):
+    st.write(f"### {entry.content}")
+    st.write(f"Expiring on: {entry.expiration_date}")
+    st.write(f"{entry.servings} servings in the {entry.storage_location}")
+    if st.button("I ate it", key=entry.name):
         cell_name = get_cell_name(entry, "servings")
         inventory_ws.update(cell_name, str(entry.servings - 1), raw=False)
         st.experimental_rerun()
-    if col.button("Postpone", key=entry.name):
+    if st.button("Postpone", key=entry.name):
         postpone_df = postpone_df.append(
             {
                 "expiration_date": entry.expiration_date,
@@ -77,7 +77,8 @@ f"""
 
 cols = st.beta_columns(spec=3)
 for i in range(len(cols)):
-    render_item(cols[i], meals_df.iloc[i], postpone_df)
+    with cols[i]:
+        render_item(meals_df.iloc[i], postpone_df)
 
 st.write("---")
 
@@ -86,7 +87,8 @@ f"""
 """
 cols = st.beta_columns(spec=3)
 for i in range(len(cols)):
-    render_item(cols[i], snacks_df.iloc[i], postpone_df)
+    with cols[i]:
+        render_item(snacks_df.iloc[i], postpone_df)
 
 st.write("---")
 
@@ -95,7 +97,8 @@ f"""
 """
 cols = st.beta_columns(spec=3)
 for i in range(len(cols)):
-    render_item(cols[i], sweets_df.iloc[i], postpone_df)
+    with cols[i]:
+        render_item(sweets_df.iloc[i], postpone_df)
 
 # df
 st.write("---")

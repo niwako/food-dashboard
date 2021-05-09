@@ -13,6 +13,7 @@ inventory_ws = sh.get_worksheet(0)
 postpone_ws = sh.get_worksheet(1)
 
 inventory_df = pd.DataFrame(inventory_ws.get_all_records())
+inventory_df["row_id"] = inventory_df.index + 2
 inventory_df["expiration_date"] = pd.to_datetime(
     inventory_df["expiration_date"]
 ).dt.date
@@ -34,18 +35,18 @@ df = df[~(df["postpone_until"] > datetime.date.today())]
 
 
 def get_cell_name(entry, column):
-    return f"{CL_MAP[column]}{entry.name+2}"
+    return f"{CL_MAP[column]}{entry.row_id}"
 
 
 def render_item(entry, postpone_df):
     st.write(f"### {entry.content}")
     st.write(f"Expiring on: {entry.expiration_date}")
     st.write(f"{entry.servings} servings in the {entry.storage_location}")
-    if st.button("I ate it", key=entry.name):
+    if st.button("I ate it", key=entry.row_id):
         cell_name = get_cell_name(entry, "servings")
         inventory_ws.update(cell_name, str(entry.servings - 1), raw=False)
         st.experimental_rerun()
-    if st.button("Postpone", key=entry.name):
+    if st.button("Postpone", key=entry.row_id):
         postpone_df = postpone_df.append(
             {
                 "expiration_date": entry.expiration_date,

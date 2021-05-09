@@ -1,6 +1,8 @@
 import datetime
 import string
 
+import altair as alt
+from altair.vegalite.v4.schema.channels import Color
 import gspread
 import pandas as pd
 import streamlit as st
@@ -36,6 +38,7 @@ def get_cell_name(entry, column):
 
 def render_item(col, entry, postpone_df):
     col.write(f"### {entry.content}")
+    col.write(f"Expiring on: {entry.expiration_date}")
     col.write(f"{entry.servings} servings in the {entry.storage_location}")
     if col.button("I ate it", key=entry.name):
         cell_name = get_cell_name(entry, "servings")
@@ -93,3 +96,46 @@ f"""
 cols = st.beta_columns(spec=3)
 for i in range(len(cols)):
     render_item(cols[i], sweets_df.iloc[i], postpone_df)
+
+# df
+st.write("---")
+
+f"""
+## Servings expiring by month
+"""
+
+event_df = pd.DataFrame(
+    {
+        "date": [datetime.date.today()],
+        "label": ["Today"],
+    }
+)
+event_chart = (
+    alt.Chart(event_df)
+    .mark_rule(color="red")
+    .encode(
+        x=alt.X("date", type="temporal"),
+        tooltip=[
+            alt.Tooltip("label"),
+        ],
+    )
+)
+servings_expiring_by_month_chart = (
+    alt.Chart(df)
+    .mark_bar()
+    .encode(
+        x=alt.X("yearmonth(expiration_date)", type="temporal", title="Month"),
+        y=alt.Y("sum(servings)", title="Servings"),
+        color=alt.Color("type", title="Meal type"),
+        tooltip=[
+            alt.Tooltip("yearmonth(expiration_date)", title="Month"),
+            alt.Tooltip("sum(servings)", title="Servings"),
+            alt.Tooltip("type", title="Meal type"),
+        ],
+    )
+)
+
+st.altair_chart(
+    (servings_expiring_by_month_chart + event_chart),
+    use_container_width=True,
+)

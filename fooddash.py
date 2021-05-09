@@ -16,6 +16,7 @@ inventory_df = pd.DataFrame(inventory_ws.get_all_records())
 inventory_df["expiration_date"] = pd.to_datetime(
     inventory_df["expiration_date"]
 ).dt.date
+inventory_df = inventory_df[inventory_df["servings"] > 0]
 postpone_df = pd.DataFrame(postpone_ws.get_all_records())
 postpone_df["expiration_date"] = pd.to_datetime(postpone_df["expiration_date"]).dt.date
 postpone_df["postpone_until"] = pd.to_datetime(postpone_df["postpone_until"]).dt.date

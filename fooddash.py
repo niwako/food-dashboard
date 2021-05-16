@@ -64,50 +64,24 @@ def render_item(entry, postpone_df):
         st.experimental_rerun()
 
 
-meals_df = df[df.type == "Meal"]
-snacks_df = df[df.type == "Snack"]
-sweets_df = df[df.type == "Sweets"]
+def render_suggestions(df, type, postpone_df):
+    st.write(f"## This week's {type} suggestions")
+    cols = st.beta_columns(spec=3)
+    for i in range(len(cols)):
+        with cols[i]:
+            render_item(df[df.type == type].iloc[i], postpone_df)
+
 
 st.set_page_config(layout="wide")
 
 
-f"""
-# Niwako's food dashboard
+f"# Niwako's food dashboard"
 
-## This week's meal suggestions
-"""
+for type in sorted(df.type.unique()):
+    render_suggestions(df, type, postpone_df)
+    st.write("---")
 
-cols = st.beta_columns(spec=3)
-for i in range(len(cols)):
-    with cols[i]:
-        render_item(meals_df.iloc[i], postpone_df)
-
-st.write("---")
-
-f"""
-## This week's snack suggestions
-"""
-cols = st.beta_columns(spec=3)
-for i in range(len(cols)):
-    with cols[i]:
-        render_item(snacks_df.iloc[i], postpone_df)
-
-st.write("---")
-
-f"""
-## This week's sweets suggestions
-"""
-cols = st.beta_columns(spec=3)
-for i in range(len(cols)):
-    with cols[i]:
-        render_item(sweets_df.iloc[i], postpone_df)
-
-# df
-st.write("---")
-
-f"""
-## Servings expiring by month
-"""
+f"## Servings expiring by month"
 
 event_df = pd.DataFrame(
     {

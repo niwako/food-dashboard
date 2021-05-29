@@ -67,9 +67,10 @@ def render_item(entry, postpone_df):
 def render_suggestions(df, type, postpone_df):
     st.write(f"## This week's {type} suggestions")
     cols = st.beta_columns(spec=3)
-    for i in range(len(cols)):
+    filtered_df = df[df.type == type]
+    for i in range(min(len(cols), len(filtered_df))):
         with cols[i]:
-            render_item(df[df.type == type].iloc[i], postpone_df)
+            render_item(filtered_df.iloc[i], postpone_df)
 
 
 st.set_page_config(layout="wide")
